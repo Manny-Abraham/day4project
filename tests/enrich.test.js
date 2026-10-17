@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { badges, enrichRatings } from "../lib/recommend.js";
+import { badges, mergeEnrichment } from "../lib/recommend.js";
 
 test("badges conditional on enrichment", () => {
   assert.deepEqual(badges({ voteAverage: 8.3 }), ["★ 8.3"]);
@@ -8,10 +8,10 @@ test("badges conditional on enrichment", () => {
 });
 
 test("enrichment null-safe merge", () => {
-  const m = enrichRatings({ title: "x", voteAverage: 8 }, {});
+  const m = mergeEnrichment({ title: "x", voteAverage: 8 }, {});
   assert.equal(m.imdbRating, null);
   assert.equal(m.rottenTomatoes, null);
-  const e = enrichRatings({ title: "x", voteAverage: 8 }, { imdbRating: "8.3", trailerYouTubeKey: "abc" });
+  const e = mergeEnrichment({ title: "x", voteAverage: 8 }, { imdbRating: "8.3", trailerYouTubeKey: "abc" });
   assert.equal(e.imdbRating, "8.3");
   assert.equal(e.trailerYouTubeKey, "abc");
 });

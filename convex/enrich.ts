@@ -7,18 +7,23 @@ import { v } from "convex/values";
 export const enrichRatings = action({
   args: { imdbId: v.string() },
   handler: async (ctx, args) => {
+    const empty = () => ({ imdbId: args.imdbId, imdbRating: null, imdbVotes: null, rottenTomatoes: null });
     const key = process.env.OMDB_API_KEY;
-    if (!key) return { imdbId: args.imdbId, imdbRating: null, imdbVotes: null, rottenTomatoes: null };
-    const url = `https://www.omdbapi.com/?apikey=${key}&i=${encodeURIComponent(args.imdbId)}&r=json`;
-    const res = await fetch(url);
-    if (!res.ok) return { imdbId: args.imdbId, imdbRating: null, imdbVotes: null, rottenTomatoes: null };
-    const data = await res.json();
-    const rt = Array.isArray(data.Ratings) ? data.Ratings.find((r) => r.Source === "Rotten Tomatoes") : null;
-    return {
-      imdbId: args.imdbId,
-      imdbRating: data.imdbRating ?? null,
-      imdbVotes: data.imdbVotes ?? null,
-      rottenTomatoes: rt?.Value ?? null,
-    };
+    if (!key) return empty();
+    try {
+      const url = `https://www.omdbapi.com/?apikey=${key}&i=${encodeURIComponent(args.imdbId)}&r=json`;
+      const res = await fetch(url);
+      if (!res.ok) return empty();
+      const data = await res.json();
+      const rt = Array.isArray(data.Ratings) ? data.Ratings.find((r) => r.Source === "Rotten Tomatoes") : null;
+      return {
+        imdbId: args.imdbId,
+        imdbRating: data.imdbRating ?? null,
+        imdbVotes: data.imdbVotes ?? null,
+        rottenTomatoes: rt?.Value ?? null,
+      };
+    } catch {
+      return empty();
+    }
   },
 });
