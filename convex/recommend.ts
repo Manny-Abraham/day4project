@@ -1,13 +1,13 @@
-"use node";
 import { action } from "./_generated/server";
+import { api } from "./_generated/api";
 import { v } from "convex/values";
 
-// Slice 1: rule-based recommend (vote order + template copy).
-// Slices 4-5 replace ranking/copy with Jev + LLM behind this same seam.
+// Primary seam: tag-filter cached movies, vote-order top 5, template arc copy.
+// Slices 4-5 layer Jev scoring + LLM copy behind this same action.
 export const recommend = action({
   args: { desiredTag: v.string(), currentText: v.optional(v.string()), minRating: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const movies = await ctx.runQuery("movies:listByTag", { tag: args.desiredTag });
+    const movies = await ctx.runQuery(api.movies.listByTag, { tag: args.desiredTag });
     const pool = movies
       .filter((m) => m.voteAverage >= (args.minRating ?? 7.0) && m.voteCount >= 50)
       .sort((a, b) => b.voteAverage - a.voteAverage || b.voteCount - a.voteCount)

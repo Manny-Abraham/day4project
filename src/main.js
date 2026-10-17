@@ -4,6 +4,28 @@ import { normalizeViaJev, rankViaJev } from "../lib/jev.js";
 import { applyCopy } from "../lib/copy.js";
 import { mergeTranscript, voiceSupported } from "../lib/voice.js";
 
+// Backend seam: when VITE_CONVEX_URL is set (after `npx convex dev`),
+// the UI calls the deployed recommend action via anyApi (no codegen needed).
+// Otherwise it runs the same rule logic locally against the bundled seed.
+const CONVEX_URL = import.meta.env?.VITE_CONVEX_URL;
+let convexClient = null;
+async function backendRecommend(args) {
+  if (!CONVEX_URL) return null;
+  try {
+    if (!convexClient) {
+      const [{ ConvexHttpClient }, { anyApi }] = await Promise.all([
+        import("convex/browser"),
+        import("convex/server"),
+      ]);
+      convexClient = new ConvexHttpClient(CONVEX_URL);
+      convexClient.anyApi = anyApi;
+    }
+    return await convexClient.action(convexClient.anyApi.recommend.recommend, args);
+  } catch {
+    return null;
+  }
+}
+
 let desired = "";
 let current = "";
 let recommendation = { results: [], empty: false, degraded: false };
@@ -90,13 +112,18 @@ function render() {
     quizOpen = false;
     render();
   }));
-  if (go) go.onclick = () => {
+  if (go) go.onclick = async () => {
     const decided = normalizeViaJev(desired || current);
     const tag = decided.tag ?? normalizeDesired(desired);
-    const base = recommend(seed.movies, { desiredTag: tag, currentText: normalizeText(current) });
-    const ranked = rankViaJev(base.results);
-    const withCopy = applyCopy(ranked.ordered, normalizeText(current), tag);
-    recommendation = { results: withCopy, empty: withCopy.length === 0, degraded: ranked.degraded, clarify: decided.tag ? null : "Not sure which feeling — pick a chip or quiz image." };
+    const remote = await backendRecommend({ desiredTag: tag, currentText: normalizeText(current) });
+    if (remote && Array.isArray(remote.results)) {
+      recommendation = { ...remote, clarify: decided.tag ? null : "Not sure which feeling — pick a chip or quiz image." };
+    } else {
+      const base = recommend(seed.movies, { desiredTag: tag, currentText: normalizeText(current) });
+      const ranked = rankViaJev(base.results);
+      const withCopy = applyCopy(ranked.ordered, normalizeText(current), tag);
+      recommendation = { results: withCopy, empty: withCopy.length === 0, degraded: ranked.degraded, clarify: decided.tag ? null : "Not sure which feeling — pick a chip or quiz image." };
+    }
     loosenStep = 0;
     render();
   };
