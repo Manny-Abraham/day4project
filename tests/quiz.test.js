@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import seed from "../convex/seed.json" with { type: "json" };
+import seed from "../src/convex/seed.json" with { type: "json" };
 import { quizToDesired } from "../lib/recommend.js";
 
 test("quiz has 6 weighted options mapping to 8 tags", () => {

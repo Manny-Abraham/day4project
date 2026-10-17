@@ -1,4 +1,4 @@
-import seed from "../convex/seed.json" with { type: "json" };
+import seed from "./convex/seed.json" with { type: "json" };
 import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy, badges, quizToDesired } from "../lib/recommend.js";
 import { normalizeViaJev, rankViaJev } from "../lib/jev.js";
 import { applyCopy } from "../lib/copy.js";

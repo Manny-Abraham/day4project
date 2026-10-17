@@ -12,7 +12,7 @@ npm run dev
 ```
 
 Without `VITE_CONVEX_URL` the UI runs the same rule logic locally
-against the bundled `convex/seed.json` (offline demo mode).
+against the bundled `src/convex/seed.json` (offline demo mode).
 
 ## Connect Convex (one human step)
 
@@ -24,18 +24,18 @@ npx convex dev
 ```
 
 This logs in, creates the project, writes `.env.local` with
-`CONVEX_DEPLOYMENT`, generates `convex/_generated/`, and syncs the
-functions in `convex/`. Then:
+`CONVEX_DEPLOYMENT`, generates `src/convex/_generated/`, and syncs the
+functions in `src/convex/`. Then:
 
 ```sh
 cp .env.example .env.local   # then set VITE_CONVEX_URL from convex output
 npm run dev                  # UI now calls the deployed recommend action
 ```
 
-Seed the tables from `convex/seed.json`:
+Seed the tables from `src/convex/seed.json`:
 
 ```sh
-npx convex import --table movies <(jq '.movies' convex/seed.json)
+npx convex import --table movies <(jq '.movies' src/convex/seed.json)
 ```
 
 Server keys (`TMDB_API_KEY`, `OMDB_API_KEY`, `TYPESAFE_API_KEY`,
