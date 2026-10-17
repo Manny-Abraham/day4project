@@ -1,5 +1,6 @@
 import seed from "../convex/seed.json" with { type: "json" };
 import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy, badges, quizToDesired } from "../lib/recommend.js";
+import { normalizeViaJev, rankViaJev } from "../lib/jev.js";
 
 let desired = "";
 let current = "";
@@ -23,6 +24,7 @@ function render() {
       <button id="go" class="bg-black text-white rounded px-3 py-1" ${desired ? "" : "disabled opacity-50"}>Recommend</button>
       <button id="quizToggle" class="border rounded px-3 py-1">Image quiz</button>
       ${recommendation.degraded && recommendation.results.length ? `<span class="text-xs bg-orange-200 px-2 py-1 rounded">degraded fallback</span>` : ""}
+    ${recommendation.clarify && !recommendation.results.length ? `<p class="text-xs mt-1 text-amber-700">${recommendation.clarify}</p>` : ""}
     ${quizOpen ? `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2" aria-label="Image quiz">${(seed.quizOptions ?? []).map((q, i) => `<button data-i="${i}" class="quiz-pick bg-white rounded shadow p-2 text-left" tabindex="0"><div class="h-20 bg-gradient-to-br from-amber-100 to-sky-200 rounded flex items-center justify-center text-xs" role="img" aria-label="${q.label}">${q.label}</div><p class="text-xs mt-1">Pick: ${q.label}</p></button>`).join("")}</div><p class="text-xs mt-1">Skippable — chips above always work.</p>` : ""}
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">${recommendation.results.map((m, i) => `
@@ -57,7 +59,11 @@ function render() {
     render();
   }));
   if (go) go.onclick = () => {
-    recommendation = recommend(seed.movies, { desiredTag: normalizeDesired(desired), currentText: normalizeText(current) });
+    const decided = normalizeViaJev(desired || current);
+    const tag = decided.tag ?? normalizeDesired(desired);
+    const base = recommend(seed.movies, { desiredTag: tag, currentText: normalizeText(current) });
+    const ranked = rankViaJev(base.results);
+    recommendation = { results: ranked.ordered, empty: ranked.ordered.length === 0, degraded: ranked.degraded, clarify: decided.tag ? null : "Not sure which feeling — pick a chip or quiz image." };
     loosenStep = 0;
     render();
   };
