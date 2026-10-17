@@ -1,5 +1,5 @@
 import seed from "../convex/seed.json" with { type: "json" };
-import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy } from "../lib/recommend.js";
+import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy, badges } from "../lib/recommend.js";
 
 let desired = "";
 let current = "";
@@ -26,8 +26,9 @@ function render() {
       <div class="bg-white rounded shadow p-2" tabindex="0">
         ${poster(m, i)}
         <p class="font-bold mt-1">${m.title} <span class="font-normal">(${m.year})</span></p>
-        <p class="text-xs">${m.genres.join("/")} · ★ ${m.voteAverage}</p>
+        <p class="text-xs">${m.genres.join("/")} · ${badges(m).join(" · ")}</p>
         <p class="text-xs mt-1 italic">“${m.whyMatch}”</p>
+        ${m.trailerYouTubeKey ? `<a class="text-xs underline" href="https://www.youtube.com/watch?v=${m.trailerYouTubeKey}" target="_blank" rel="noreferrer">Trailer ↗</a>` : ""}
       </div>`).join("")}</div>
     ${recommendation.empty ? `<div class="mt-3 bg-white rounded p-3 shadow"><p class="text-sm">No tight matches ≥ 7.0. <button id="loose" class="underline">${loosenStep === 0 ? "Loosen to 6.5 + retry" : "Try same family + retry"}</button></p></div>` : ""}
     <footer class="text-xs mt-4">This product uses the TMDB API but is not endorsed or certified by TMDB.</footer>

@@ -17,10 +17,10 @@
    "popularity": 40,
    "voteAverage": 8.3,
    "voteCount": 9000,
-   "imdbRating": null,
-   "imdbVotes": null,
-   "rottenTomatoes": null,
-   "trailerYouTubeKey": null,
+   "imdbRating": "8.3",
+   "imdbVotes": "870,000",
+   "rottenTomatoes": "89%",
+   "trailerYouTubeKey": "dQw4w9WgXcQ",
    "desiredTags": [
     "Happy",
     "Tired/Relaxed"
@@ -71,10 +71,10 @@
    "popularity": 38,
    "voteAverage": 8.2,
    "voteCount": 7000,
-   "imdbRating": null,
-   "imdbVotes": null,
-   "rottenTomatoes": null,
-   "trailerYouTubeKey": null,
+   "imdbRating": "8.2",
+   "imdbVotes": "790,000",
+   "rottenTomatoes": "94%",
+   "trailerYouTubeKey": "dQw4w9WgXcQ",
    "desiredTags": [
     "Tired/Relaxed",
     "Sad"
