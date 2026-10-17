@@ -227,5 +227,55 @@
    "voteAverageGte": 7,
    "voteCountGte": 50
   }
+ ],
+ "quizOptions": [
+  {
+   "label": "Sunny meadow",
+   "imageUrl": "/quiz/meadow.jpg",
+   "weights": {
+    "Happy": 2,
+    "Tired/Relaxed": 1
+   }
+  },
+  {
+   "label": "Rainy window",
+   "imageUrl": "/quiz/rain.jpg",
+   "weights": {
+    "Sad": 2,
+    "Lonely": 1
+   }
+  },
+  {
+   "label": "Busy city",
+   "imageUrl": "/quiz/city.jpg",
+   "weights": {
+    "Stressed": 2,
+    "Angry": 1
+   }
+  },
+  {
+   "label": "Quiet cabin",
+   "imageUrl": "/quiz/cabin.jpg",
+   "weights": {
+    "Tired/Relaxed": 2,
+    "Bored": 1
+   }
+  },
+  {
+   "label": "Concert crowd",
+   "imageUrl": "/quiz/concert.jpg",
+   "weights": {
+    "Excited": 2,
+    "Happy": 1
+   }
+  },
+  {
+   "label": "Empty road",
+   "imageUrl": "/quiz/road.jpg",
+   "weights": {
+    "Bored": 2,
+    "Lonely": 1
+   }
+  }
  ]
 }

@@ -1,10 +1,11 @@
 import seed from "../convex/seed.json" with { type: "json" };
-import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy, badges } from "../lib/recommend.js";
+import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy, badges, quizToDesired } from "../lib/recommend.js";
 
 let desired = "";
 let current = "";
 let recommendation = { results: [], empty: false, degraded: false };
 let loosenStep = 0;
+let quizOpen = false;
 const app = document.getElementById("app");
 const FAMILY = { "Tired/Relaxed": ["Happy", "Tired/Relaxed"], Happy: ["Happy", "Excited"] };
 
@@ -20,7 +21,9 @@ function render() {
       <div class="flex gap-1 flex-wrap" aria-label="Current quick picks">${EMOTION_TAGS.map((t) => `<button data-c="${t}" class="cur-chip border rounded-full px-2 py-0.5 text-xs">${t}</button>`).join("")}</div>
       <div class="flex gap-1 flex-wrap" aria-label="Desired picks">${EMOTION_TAGS.map((t) => `<button data-d="${t}" class="des-chip border rounded-full px-2 py-0.5 text-xs ${desired === t ? "bg-black text-white" : ""}">${t}</button>`).join("")}</div>
       <button id="go" class="bg-black text-white rounded px-3 py-1" ${desired ? "" : "disabled opacity-50"}>Recommend</button>
+      <button id="quizToggle" class="border rounded px-3 py-1">Image quiz</button>
       ${recommendation.degraded && recommendation.results.length ? `<span class="text-xs bg-orange-200 px-2 py-1 rounded">degraded fallback</span>` : ""}
+    ${quizOpen ? `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2" aria-label="Image quiz">${(seed.quizOptions ?? []).map((q, i) => `<button data-i="${i}" class="quiz-pick bg-white rounded shadow p-2 text-left" tabindex="0"><div class="h-20 bg-gradient-to-br from-amber-100 to-sky-200 rounded flex items-center justify-center text-xs" role="img" aria-label="${q.label}">${q.label}</div><p class="text-xs mt-1">Pick: ${q.label}</p></button>`).join("")}</div><p class="text-xs mt-1">Skippable — chips above always work.</p>` : ""}
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">${recommendation.results.map((m, i) => `
       <div class="bg-white rounded shadow p-2" tabindex="0">
@@ -37,6 +40,22 @@ function render() {
   app.querySelectorAll(".cur-chip").forEach((b) => (b.onclick = () => { current = b.dataset.c; render(); }));
   app.querySelector("#cur").oninput = (e) => (current = e.target.value);
   const go = app.querySelector("#go");
+  const quizToggle = app.querySelector("#quizToggle");
+  if (quizToggle) quizToggle.onclick = () => {
+    quizOpen = !quizOpen;
+    render();
+  };
+  app.querySelectorAll(".quiz-pick").forEach((b) => (b.onclick = () => {
+    const opts = seed.quizOptions ?? [];
+    const picked = opts[Number(b.dataset.i)];
+    const tag = quizToDesired(opts, Number(b.dataset.i));
+    if (tag) {
+      desired = tag;
+      if (!normalizeText(current)) current = normalizeText(picked?.label ?? "");
+    }
+    quizOpen = false;
+    render();
+  }));
   if (go) go.onclick = () => {
     recommendation = recommend(seed.movies, { desiredTag: normalizeDesired(desired), currentText: normalizeText(current) });
     loosenStep = 0;
