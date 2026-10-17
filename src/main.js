@@ -1,6 +1,7 @@
 import seed from "../convex/seed.json" with { type: "json" };
 import { recommend, EMOTION_TAGS, normalizeText, normalizeDesired, templateWhy, badges, quizToDesired } from "../lib/recommend.js";
 import { normalizeViaJev, rankViaJev } from "../lib/jev.js";
+import { applyCopy } from "../lib/copy.js";
 
 let desired = "";
 let current = "";
@@ -63,7 +64,8 @@ function render() {
     const tag = decided.tag ?? normalizeDesired(desired);
     const base = recommend(seed.movies, { desiredTag: tag, currentText: normalizeText(current) });
     const ranked = rankViaJev(base.results);
-    recommendation = { results: ranked.ordered, empty: ranked.ordered.length === 0, degraded: ranked.degraded, clarify: decided.tag ? null : "Not sure which feeling — pick a chip or quiz image." };
+    const withCopy = applyCopy(ranked.ordered, normalizeText(current), tag);
+    recommendation = { results: withCopy, empty: withCopy.length === 0, degraded: ranked.degraded, clarify: decided.tag ? null : "Not sure which feeling — pick a chip or quiz image." };
     loosenStep = 0;
     render();
   };
@@ -78,7 +80,7 @@ function render() {
         .filter((m) => (m.desiredTags ?? []).some((t) => fam.includes(t)) && m.voteAverage >= 6.5 && (m.voteCount ?? 0) >= 50)
         .sort((a, b) => b.voteAverage - a.voteAverage || b.voteCount - a.voteCount)
         .slice(0, 5);
-      recommendation = { results: pool.map((m) => ({ ...m, whyMatch: templateWhy(current, desired) })), empty: pool.length === 0, degraded: true };
+      recommendation = { results: applyCopy(pool, current, desired), empty: pool.length === 0, degraded: true };
     }
     render();
   };
